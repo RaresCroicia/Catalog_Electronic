@@ -8,6 +8,12 @@ public class Grade implements Comparable, Cloneable {
     private Student student;
     private String course;
 
+    public Grade(Double partialScore, Double examScore, Student student, String course) {
+        this.partialScore = partialScore;
+        this.examScore = examScore;
+        this.student = student;
+        this.course = course;
+    }
     public Double getPartialScore() {
         return partialScore;
     }
@@ -59,5 +65,9 @@ public class Grade implements Comparable, Cloneable {
 
     protected Object clone() throws CloneNotSupportedException {
         return super.clone();
+    }
+
+    public String toString() {
+        return partialScore + " " + examScore;
     }
 }
