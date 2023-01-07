@@ -1,5 +1,6 @@
 package university.course;
 
+import tools.Strategy;
 import university.Grade;
 import university.Group;
 import university.user.Assistant;
@@ -15,6 +16,7 @@ public abstract class Course {
     TreeSet<Grade> grades;
     HashMap<String, Group> groups;
     private int creditPoints; // required
+    private Strategy strategy;
 
     protected Course(CourseBuilder builder) {
         this.name = builder.name;
@@ -81,6 +83,8 @@ public abstract class Course {
         this.assistants = assistants;
     }
 
+
+
     public TreeSet<Grade> getGrades() {
         return grades;
     }
@@ -111,6 +115,10 @@ public abstract class Course {
         if(!assistants.contains(assistant))
             assistants.add(assistant);
         groups.put(ID, group);
+    }
+
+    public void setStrategy(Strategy strategy) {
+        this.strategy = strategy;
     }
 
     public void addStudent(String ID, Student student) {
@@ -169,6 +177,10 @@ public abstract class Course {
     public abstract ArrayList<Student> getGraduatedStudents();
     public String toString() {
         return name + " " + teacher + " " + creditPoints;
+    }
+
+    public Student getBestStudent() {
+        return strategy.calculate(getAllStudents(), getAllStudentGrades());
     }
 
 }

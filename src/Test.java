@@ -1,3 +1,4 @@
+import tools.BestTotalScore;
 import university.Catalog;
 import university.Grade;
 import university.Group;
@@ -47,6 +48,8 @@ public class Test {
             System.out.println(entry.getKey() + " : " + entry.getValue());
         }
         System.out.println(cursUso.getGraduatedStudents());
+        cursUso.setStrategy(new BestTotalScore());
+        System.out.println(cursUso.getBestStudent());
     }
 
     public static void main(String[] args) {
