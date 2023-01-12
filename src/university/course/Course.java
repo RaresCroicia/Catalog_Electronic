@@ -17,6 +17,26 @@ public abstract class Course {
     HashMap<String, Group> groups;
     private int creditPoints; // required
     private Strategy strategy;
+    protected Snapshot snapshot;
+    private class Snapshot {
+        private TreeSet<Grade> grades;
+
+        public TreeSet<Grade> getGrades() {
+            return grades;
+        }
+
+        public void setGrades(TreeSet<Grade> grades) {
+            this.grades = grades;
+        }
+    }
+
+    public void makeBackup() {
+        snapshot.setGrades(this.getGrades());
+    }
+
+    public void undo() {
+        this.setGrades(snapshot.getGrades());
+    }
 
     protected Course(CourseBuilder builder) {
         this.name = builder.name;

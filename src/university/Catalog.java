@@ -16,6 +16,10 @@ public class Catalog {
         return obj;
     }
 
+    public ArrayList<Course> getCourses() {
+        return courses;
+    }
+
     public void addCourse(Course course) {
         courses.add(course);
     }
