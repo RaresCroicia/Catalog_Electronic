@@ -50,4 +50,12 @@ public class Group extends TreeSet<Student> {
     public void setAssistant(Assistant assistant) {
         this.assistant = assistant;
     }
+
+    public boolean hasStudent(Student student) {
+        for(Student studentIt : this) {
+            if(studentIt.getFirstName().equals(student.getFirstName()) && studentIt.getLastName().equals(student.getLastName()))
+                return true;
+        }
+        return false;
+    }
 }

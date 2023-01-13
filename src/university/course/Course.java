@@ -54,6 +54,7 @@ public abstract class Course {
         private Set<Assistant> assistants;
         private TreeSet<Grade> grades;
         private HashMap<String, Group> groups;
+        private Strategy strategy;
 
         public CourseBuilder(String name, Teacher teacher, int creditPoints) {
             this.name = name;
@@ -76,7 +77,12 @@ public abstract class Course {
             return this;
         }
 
-        abstract Course build();
+        public CourseBuilder strategy(Strategy strategy) {
+            this.strategy = strategy;
+            return this;
+        }
+
+        public abstract Course build();
     }
 
     public String getName() {
@@ -178,6 +184,15 @@ public abstract class Course {
         grade.getStudent().notifyObservers(grade);
     }
 
+    public boolean studentExists(Student student) {
+        ArrayList<Student> students = getAllStudents();
+        for(Student studentIt : students) {
+            if(studentIt.getFirstName().equals(student.getFirstName()) && studentIt.getLastName().equals(student.getLastName()))
+                return true;
+        }
+        return false;
+    }
+
     public ArrayList<Student> getAllStudents() {
         ArrayList<Student> students = new ArrayList<>();
         for(Group group : groups.values()) {
@@ -196,11 +211,49 @@ public abstract class Course {
     }
     public abstract ArrayList<Student> getGraduatedStudents();
     public String toString() {
-        return name + " " + teacher + " " + creditPoints;
+        return name;
     }
 
     public Student getBestStudent() {
         return strategy.calculate(getAllStudents(), getAllStudentGrades());
+    }
+
+    public Assistant getAssistant(Student student) {
+        for (Group group : groups.values()) {
+            if(group.hasStudent(student))
+                return group.getAssistant();
+        }
+        return null;
+    }
+
+    public Double getPartialScore(Student student) {
+        if(grades == null)
+            return null;
+        for(Grade grade : grades) {
+            if(grade.getStudent().getFirstName().equals(student.getFirstName()) && grade.getStudent().getLastName().equals(student.getLastName()))
+                return grade.getPartialScore();
+        }
+        return null;
+    }
+
+    public Double getExamScore(Student student) {
+        if(grades == null)
+            return null;
+        for(Grade grade : grades) {
+            if(grade.getStudent().getFirstName().equals(student.getFirstName()) && grade.getStudent().getLastName().equals(student.getLastName()))
+                return grade.getExamScore();
+        }
+        return null;
+    }
+
+    public Double getTotalScore(Student student) {
+        if(grades == null)
+            return null;
+        for(Grade grade : grades) {
+            if(grade.getStudent().getFirstName().equals(student.getFirstName()) && grade.getStudent().getLastName().equals(student.getLastName()))
+                return grade.getTotal();
+        }
+        return null;
     }
 
 }

@@ -15,12 +15,21 @@ public class Student extends User implements Subject {
         super(firstName, lastName);
     }
 
+    public Parent getMother() {
+        return mother;
+    }
+
+    public Parent getFather() {
+        return father;
+    }
     public void setFather(Parent father) {
         this.father = father;
+        addObserver(father);
     }
 
     public void setMother(Parent mother) {
         this.mother = mother;
+        addObserver(mother);
     }
 
     @Override
@@ -37,8 +46,10 @@ public class Student extends User implements Subject {
 
     @Override
     public void notifyObservers(Grade grade) {
+        if(observers == null)
+            return;
         for(Observer observer : observers) {
-            observer.update(new Notification("Copilul dumneavoastra a primit nota " + grade.getTotal() + " la cursul de " + grade.getCourse()));
+            observer.update(new Notification("Notele actualizate ale copilului dumneavoastra la cursul de" + grade.getCourse() + ":\nNota pe parcurs:  " + grade.getPartialScore() + "\nNota in examen: " + grade.getExamScore()));
         }
     }
 }
