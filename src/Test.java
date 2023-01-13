@@ -100,13 +100,13 @@ public class Test {
                 String courseName = courseJsonObject.get("name").getAsString();
 
                 // Profesor curs
-                Teacher teacher;
+                User teacher;
                 {
                     JsonElement teacherJson = courseJsonObject.get("teacher");
                     JsonObject teacherJsonObject = teacherJson.getAsJsonObject();
                     String firstName = teacherJsonObject.get("firstName").getAsString();
                     String lastName = teacherJsonObject.get("lastName").getAsString();
-                    teacher = new Teacher(firstName, lastName);
+                    teacher = UserFactory.getUser(UserFactory.UserType.Teacher, firstName, lastName);
                 }
                 // Adaug asistenti
                 Set<Assistant> assistants = new HashSet<>();
@@ -116,8 +116,8 @@ public class Test {
                         JsonObject assistantJsonObject = assistantJson.getAsJsonObject();
                         String assistantFirstName = assistantJsonObject.get("firstName").getAsString();
                         String assistantLastName = assistantJsonObject.get("lastName").getAsString();
-                        Assistant assistant = new Assistant(assistantFirstName, assistantLastName);
-                        assistants.add(assistant);
+                        User assistant = UserFactory.getUser(UserFactory.UserType.Assistant, assistantFirstName, assistantLastName);
+                        assistants.add((Assistant) assistant);
                     }
                 }
                 //Adaug grupele
@@ -133,23 +133,23 @@ public class Test {
                         JsonObject assistantJsonObject = assistantJson.getAsJsonObject();
                         String assFirstName = assistantJsonObject.get("firstName").getAsString();
                         String assLastName = assistantJsonObject.get("lastName").getAsString();
-                        Assistant assistant = new Assistant(assFirstName, assLastName); // <------------- Assistant
-                        group = new Group(ID, assistant); // <-------------------- Empty group, will populate next
+                        User assistant = UserFactory.getUser(UserFactory.UserType.Assistant, assFirstName, assLastName);
+                        group = new Group(ID, (Assistant) assistant); // <-------------------- Empty group, will populate next
 
                         JsonArray studentsJson = groupJsonObject.get("students").getAsJsonArray();
                         for (JsonElement studentJson : studentsJson) {
                             JsonObject studentJsonObject = studentJson.getAsJsonObject();
                             String firstName = studentJsonObject.get("firstName").getAsString();
                             String lastName = studentJsonObject.get("lastName").getAsString();
-                            Student student = new Student(firstName, lastName);
+                            User student = UserFactory.getUser(UserFactory.UserType.Student, firstName, lastName);
 
                             JsonElement motherJson = studentJsonObject.get("mother");
                             if(motherJson != null) {
                                 JsonObject motherJsonObject = motherJson.getAsJsonObject();
                                 String motherFirstName = motherJsonObject.get("firstName").getAsString();
                                 String motherLastName = motherJsonObject.get("lastName").getAsString();
-                                Parent mother = new Parent(motherFirstName, motherLastName);
-                                student.setMother(mother);
+                                User mother = UserFactory.getUser(UserFactory.UserType.Parent, motherFirstName, motherLastName);
+                                ((Student)student).setMother((Parent) mother);
                             }
 
                             JsonElement fatherJson = studentJsonObject.get("father");
@@ -157,10 +157,10 @@ public class Test {
                                 JsonObject fatherJsonObject = fatherJson.getAsJsonObject();
                                 String fatherFirstName = fatherJsonObject.get("firstName").getAsString();
                                 String fatherLastName = fatherJsonObject.get("lastName").getAsString();
-                                Parent father = new Parent(fatherFirstName, fatherLastName);
-                                student.setFather(father);
+                                User father = UserFactory.getUser(UserFactory.UserType.Parent, fatherFirstName, fatherLastName);
+                                ((Student) student).setFather((Parent) father);
                             }
-                            group.add(student);
+                            group.add((Student) student);
                         }
                         groups.put(group.getID(), group);
                     }
@@ -168,11 +168,11 @@ public class Test {
 
                 // Adaug cursul in catalog
                 if(partialSauFull == 1) {
-                    Course curs = new PartialCourse.PartialCourseBuilder(courseName, teacher, 5).grades(new TreeSet<Grade>()).groups(groups).assistants(assistants).strategy(strategy).build();
+                    Course curs = new PartialCourse.PartialCourseBuilder(courseName, (Teacher) teacher, 5).grades(new TreeSet<Grade>()).groups(groups).assistants(assistants).strategy(strategy).build();
                     Catalog.getCatalog().addCourse(curs);
                 }
                 if(partialSauFull == 2) {
-                    Course curs = new FullCourse.FullCourseBuilder(courseName, teacher, 5).grades(new TreeSet<Grade>()).groups(groups).assistants(assistants).strategy(strategy).build();
+                    Course curs = new FullCourse.FullCourseBuilder(courseName, (Teacher) teacher, 5).grades(new TreeSet<Grade>()).groups(groups).assistants(assistants).strategy(strategy).build();
                     Catalog.getCatalog().addCourse(curs);
                 }
             }
@@ -187,7 +187,6 @@ public class Test {
                 JsonObject studentJsonObject = examScoreJsonObject.get("student").getAsJsonObject();
                 String studentFirstName = studentJsonObject.get("firstName").getAsString();
                 String studentLastName = studentJsonObject.get("lastName").getAsString();
-                Student student = new Student(studentFirstName, studentLastName);
                 String courseName = examScoreJsonObject.get("course").getAsString();
                 Double grade = examScoreJsonObject.get("grade").getAsDouble();
                 if(teacher == null) {
@@ -195,6 +194,18 @@ public class Test {
                     for(Course course : coursesTemp)
                         if(course.getName().equals(courseName))
                             teacher = course.getTeacher();
+                }
+                Student student = null;
+                {
+                    ArrayList<Course> coursesTemp = Catalog.getCatalog().getCourses();
+                    for(Course course : coursesTemp)
+                        if(course.getName().equals(courseName)) {
+                            ArrayList<Student> students = course.getAllStudents();
+                            for(Student studentIt : students) {
+                                if(studentIt.getFirstName().equals(studentFirstName) && studentIt.getLastName().equals(studentLastName))
+                                    student = studentIt;
+                            }
+                        }
                 }
                 Catalog.getCatalog().scoreVisitor.addExamScore(teacher, student, courseName, grade);
             }
@@ -209,9 +220,20 @@ public class Test {
                 JsonObject studentJsonObject = partialScoreJsonObject.get("student").getAsJsonObject();
                 String studentFirstName = studentJsonObject.get("firstName").getAsString();
                 String studentLastName = studentJsonObject.get("lastName").getAsString();
-                Student student = new Student(studentFirstName, studentLastName);
                 String courseName = partialScoreJsonObject.get("course").getAsString();
                 Double grade = partialScoreJsonObject.get("grade").getAsDouble();
+                Student student = null;
+                {
+                    ArrayList<Course> coursesTemp = Catalog.getCatalog().getCourses();
+                    for(Course course : coursesTemp)
+                        if(course.getName().equals(courseName)) {
+                            ArrayList<Student> students = course.getAllStudents();
+                            for(Student studentIt : students) {
+                                if(studentIt.getFirstName().equals(studentFirstName) && studentIt.getLastName().equals(studentLastName))
+                                    student = studentIt;
+                            }
+                        }
+                }
                 if(assistant == null) {
                     ArrayList<Course> coursesTemp = Catalog.getCatalog().getCourses();
                     for(Course course : coursesTemp) {
@@ -242,18 +264,19 @@ public class Test {
         for(Student studentIt : students) {
             if(studentIt.getFirstName().equals("Gigel") && studentIt.getLastName().equals("Frone")) {
                 student = studentIt;
-                parent = student.getFather();
+                parent = studentIt.getFather();
                 teacher = curs.getTeacher();
                 assistant = curs.getAssistant(student);
                 break;
             }
         }
 
-
         StudentPage studentPage = new StudentPage(student);
         ParentPage parentPage = new ParentPage(parent);
         TeacherPage teacherPage = new TeacherPage(teacher);
         AssistantPage assistantPage = new AssistantPage(assistant);
+
+
 
     }
 }

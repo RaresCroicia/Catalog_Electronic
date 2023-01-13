@@ -5,7 +5,7 @@ import tools.Notification;
 import tools.Observer;
 
 public class Parent extends User implements Observer {
-    private ParentPage page;
+    public ParentPage page;
     public void setPage(ParentPage page) {
         this.page = page;
     }
@@ -16,7 +16,7 @@ public class Parent extends User implements Observer {
 
     @Override
     public void update(Notification notification) {
-        System.out.println(notification);
-        page.setNotificari(notification.toString());
+        if(page != null)
+            page.setNotificari(notification.toString());
     }
 }

@@ -49,7 +49,7 @@ public class Student extends User implements Subject {
         if(observers == null)
             return;
         for(Observer observer : observers) {
-            observer.update(new Notification("Notele actualizate ale copilului dumneavoastra la cursul de" + grade.getCourse() + ":\nNota pe parcurs:  " + grade.getPartialScore() + "\nNota in examen: " + grade.getExamScore()));
+            observer.update(new Notification("Notele actualizate ale copilului dumneavoastra la cursul de " + grade.getCourse() + ":\nNota pe parcurs:  " + grade.getPartialScore() + "\nNota in examen: " + grade.getExamScore()));
         }
     }
 }

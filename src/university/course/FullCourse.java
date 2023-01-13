@@ -24,7 +24,7 @@ public class FullCourse extends Course{
 
     @Override
     public ArrayList<Student> getGraduatedStudents() {
-        ArrayList<Student> graduatedStudents = new ArrayList<Student>();
+        ArrayList<Student> graduatedStudents = new ArrayList<>();
         ArrayList<Student> students = getAllStudents();
         for(Student student : students) {
             Grade grade = getGrade(student);

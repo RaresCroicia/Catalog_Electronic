@@ -17,7 +17,7 @@ public class StudentPage extends JFrame implements ListSelectionListener {
     JList<Course> courseList;
     DefaultListModel<Course> courseListModel;
 
-    JTextField teacher, assistants, theAssistant, partialGrade, finalGrade;
+    JTextField teacher, assistants, theAssistant, partialGrade, finalGrade, courseGrade;
     private ArrayList<Course> getCoursesForStudent(Student student) {
         ArrayList<Course> studentCourses = new ArrayList<>();
         ArrayList<Course> courses = Catalog.getCatalog().getCourses();
@@ -62,12 +62,15 @@ public class StudentPage extends JFrame implements ListSelectionListener {
         partialGrade.setColumns(50);
         finalGrade = new JTextField();
         finalGrade.setColumns(50);
+        courseGrade = new JTextField();
+        courseGrade.setColumns(50);
 
         p3.add(teacher);
         p3.add(assistants);
         p3.add(theAssistant);
         p3.add(partialGrade);
         p3.add(finalGrade);
+        p3.add(courseGrade);
 
         p1.add(p3);
 
@@ -83,6 +86,7 @@ public class StudentPage extends JFrame implements ListSelectionListener {
             theAssistant.setText("");
             partialGrade.setText("");
             finalGrade.setText("");
+            courseGrade.setText("");
             return;
         }
         Course course = courseList.getSelectedValue();
@@ -97,5 +101,10 @@ public class StudentPage extends JFrame implements ListSelectionListener {
             finalGrade.setText("N-ai nota in examen");
         else
             finalGrade.setText("Nota in examen: " + course.getExamScore(student).toString());
+        if(course.getTotalScore(student) == null)
+            courseGrade.setText("N-ai nicio nota momentan!");
+        else
+            courseGrade.setText("Nota totala: " + course.getTotalScore(student).toString());
+
     }
 }

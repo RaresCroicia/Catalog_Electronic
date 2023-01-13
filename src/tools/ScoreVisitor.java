@@ -18,7 +18,7 @@ public class ScoreVisitor implements Visitor{
         U second;
         V third;
         public String toString() {
-            return first.toString() + " " + second.toString() + " " + third.toString();
+            return first.toString() + " : " + second.toString() + " : " + third.toString();
         }
     }
 
@@ -37,6 +37,24 @@ public class ScoreVisitor implements Visitor{
                 return teacher;
         }
         return null;
+    }
+
+    public ArrayList<String> getTeacherTuple(Teacher teacher) {
+        ArrayList<String> arrayList = new ArrayList<>();
+        ArrayList<Tuple<Student, String, Double>> tuples = examScores.get(teacher);
+        for(Tuple<Student, String, Double> tuple : tuples) {
+            arrayList.add(tuple.toString());
+        }
+        return arrayList;
+    }
+
+    public ArrayList<String> getAssistantTuple(Assistant assistant) {
+        ArrayList<String> arrayList = new ArrayList<>();
+        ArrayList<Tuple<Student, String, Double>> tuples = partialScores.get(assistant);
+        for(Tuple<Student, String, Double> tuple : tuples) {
+            arrayList.add(tuple.toString());
+        }
+        return arrayList;
     }
 
     public Assistant assistantExists(String firstName, String lastName) {
@@ -74,58 +92,59 @@ public class ScoreVisitor implements Visitor{
     public void visit(Assistant assistant) {
         ArrayList<Course> courses = Catalog.getCatalog().getCourses();
         ArrayList<Tuple<Student, String, Double>> tuples = partialScores.get(assistant);
-            for(Tuple<Student, String, Double> tuple : tuples) {
-                for(Course course : courses)
-                    if(course.getName().equals(tuple.second)) {
-                        TreeSet<Grade> grades = course.getGrades();
-                        boolean found = false;
-                        for(Grade grade : grades) {
-                            if(grade.getStudent().getFirstName().equals(tuple.first.getFirstName()) && grade.getStudent().getLastName().equals(tuple.first.getLastName())) {
-                                if(grade.getPartialScore() != tuple.third) {
-                                    grade.setPartialScore(tuple.third);
-                                    found = true;
-                                    grade.getStudent().notifyObservers(grade);
-                                    break;
-                                }
+        for(Tuple<Student, String, Double> tuple : tuples) {
+            for(Course course : courses)
+                if(course.getName().equals(tuple.second)) {
+                    TreeSet<Grade> grades = course.getGrades();
+                    boolean found = false;
+                    for(Grade grade : grades) {
+                        if(grade.getStudent().getFirstName().equals(tuple.first.getFirstName()) && grade.getStudent().getLastName().equals(tuple.first.getLastName())) {
+                            if(grade.getPartialScore() != tuple.third) {
+                                grade.setPartialScore(tuple.third);
+                                found = true;
+                                grade.getStudent().notifyObservers(grade);
+                                break;
                             }
                         }
-                        if(!found) {
-                            Grade grade = new Grade(tuple.third, 0.0d, tuple.first, tuple.second);
-                            grades.add(grade);
-                            grade.getStudent().notifyObservers(grade);
-                        }
                     }
+                    if(!found) {
+                        Grade grade = new Grade(tuple.third, 0.0d, tuple.first, tuple.second);
+                        grades.add(grade);
+                        grade.getStudent().notifyObservers(grade);
+                    }
+                }
         }
+        partialScores.remove(assistant);
     }
 
     @Override
     public void visit(Teacher teacher) {
         ArrayList<Course> courses = Catalog.getCatalog().getCourses();
         ArrayList<Tuple<Student, String, Double>> tuples = examScores.get(teacher);
-            for(Tuple<Student, String, Double> tuple : tuples) {
-                for (Course course : courses)
-                    if (course.getName().equals(tuple.second)) {
-                        TreeSet<Grade> grades = course.getGrades();
-                        boolean found = false;
-                        for (Grade grade : grades) {
-                            if (grade.getStudent().getFirstName().equals(tuple.first.getFirstName()) && grade.getStudent().getLastName().equals(tuple.first.getLastName())) {
-                                if (grade.getExamScore() != tuple.third) {
-                                    grade.setExamScore(tuple.third);
-                                    grade.getStudent().notifyObservers(grade);
-                                    System.out.println(grade.getStudent());
-                                    System.out.println(grade.getStudent().getFather());
-                                    found = true;
-                                    break;
-                                }
+        for(Tuple<Student, String, Double> tuple : tuples) {
+            for (Course course : courses)
+                if (course.getName().equals(tuple.second)) {
+                    TreeSet<Grade> grades = course.getGrades();
+                    boolean found = false;
+                    for (Grade grade : grades) {
+                        if (grade.getStudent().getFirstName().equals(tuple.first.getFirstName()) && grade.getStudent().getLastName().equals(tuple.first.getLastName())) {
+                            if (grade.getExamScore() != tuple.third) {
+                                grade.setExamScore(tuple.third);
+                                grade.getStudent().notifyObservers(grade);
+
+                                found = true;
+                                break;
                             }
                         }
-                        if (!found) {
-                            Grade grade = new Grade(0.0d, tuple.third, tuple.first, tuple.second);
-                            grades.add(grade);
-                            grade.getStudent().notifyObservers(grade);
-                        }
                     }
-            }
+                    if (!found) {
+                        Grade grade = new Grade(0.0d, tuple.third, tuple.first, tuple.second);
+                        grades.add(grade);
+                        grade.getStudent().notifyObservers(grade);
+                    }
+                }
+        }
+        examScores.remove(teacher);
     }
 
 
