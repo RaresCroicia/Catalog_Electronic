@@ -1,6 +1,7 @@
 package GUI.pages;
 
 import university.Catalog;
+import university.course.Course;
 import university.user.Assistant;
 import university.user.Teacher;
 
@@ -9,6 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class AssistantPage extends JFrame implements ActionListener {
     private Assistant assistant;
@@ -31,11 +33,28 @@ public class AssistantPage extends JFrame implements ActionListener {
             tuplesModel.addElement(string);
         }
 
+        JScrollPane scrollPaneCursuri = new JScrollPane();
+        DefaultListModel<Course> coursesModel = new DefaultListModel<>();
+        ArrayList<Course> courses = Catalog.getCatalog().getCourses();
+        for(Course course : courses) {
+            Set<Assistant> assistantSet = course.getAssistants();
+            for(Assistant assistant1 : assistantSet) {
+                if(assistant1.getFirstName().equals(assistant.getFirstName()) && assistant1.getLastName().equals(assistant.getLastName()))
+                    coursesModel.addElement(course);
+            }
+        }
+
+        JList<Course> coursesList = new JList<>(coursesModel);
+        scrollPaneCursuri.setViewportView(coursesList);
+        coursesList.setLayoutOrientation(JList.VERTICAL);
+
         JScrollPane scrollPane = new JScrollPane();
         tuples = new JList<>(tuplesModel);
         scrollPane.setViewportView(tuples);
         tuples.setLayoutOrientation(JList.VERTICAL);
 
+
+        add(scrollPaneCursuri);
         add(scrollPane);
 
 
